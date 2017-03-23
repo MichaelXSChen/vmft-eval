@@ -1,0 +1,11 @@
+#!/bin/bash
+cfgs=`ls *.cfg`
+if [ $# -eq 2 ];then
+    for cfg in $cfgs;do
+	filename=`echo $cfg | cut -d'.' -f 1`
+	sed -e "s/-c 8/-c $1/g" $cfg > tmp/"${filename}_c${1}_n${2}.cfg"
+	sed -i "s/-n 100000/-n $2/g" tmp/"${filename}_c${1}_n${2}.cfg"
+    done
+else
+    echo "usage: set_client [c] [n] where c represents client and n reprensents number of request"
+fi

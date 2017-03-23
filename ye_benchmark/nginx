@@ -1,0 +1,14 @@
+[SERVER]
+PORT=7009
+SERVER_IP=202.45.128.163
+SERVER_PROGRAM=service nginx
+SERVER_CONF=start
+SERVER_KILL=sudo killall -9 httpd
+SERVER_PATH=
+VALIDATE_APP_STATUS=ps -ef | grep httpd| grep -v grep
+[BENCHMARK]
+BENCHMARK_PATH=
+BENCHMARK_PROGRAM=ab
+BENCHMARK_CONF=-n 100 -c 1 http://127.0.0.1:7009/test.php
+VALIDATE_BENCHMARK_STATUS=ps -ef | grep /usr/bin/ab | grep -v grep
+REPORT_FILE=/home/hkucs/my_ubuntu/benchmark/ye_benchmark/report/nginx.rpt
