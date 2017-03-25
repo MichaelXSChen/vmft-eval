@@ -137,8 +137,6 @@ def run_server(status,server_ip, server_user,server_kill, server_program, server
             os.system("exit")
            # app_proc = subprocess.Popen("sudo "+ server_program + " " + server_conf, shell=True)
         else:
-        #    app_proc = subprocess.Popen(server_program + " " + server_conf, shell=True) 
-        #    app_pid = app_proc.pid
             command = server_program + " " + server_conf
             ssh_remote_execute(command,server_user,server_ip,4)
             os.system("exit")
@@ -149,10 +147,16 @@ def run_server(status,server_ip, server_user,server_kill, server_program, server
 
 def run_benchmark(report, benchmark_server, benchmark_conf, command, *args):
     try:
-       # benchmark_proc =subprocess.Popen(benchmark_server + " "
-       #                                   + benchmark_conf
-       #                                   + " >> " + report +" &>1",shell=True)
-       # house_keeping(command, benchmark_server)
+	sudo cat /dev/null > /home/hkucs/qemu_output/latest_master_log 
+	if "sysbench" in benchmark_server:
+            prepare = benchmark_conf+"cleanup"
+            os.system(benchmark_server+" "+prepare)
+            time.sleep(5)
+            prepare = benchmark_conf+"prepare"
+            os.system(benchmark_server+" "+prepare)
+            time.sleep(30)
+            benchmark_conf = benchmark_conf+" run"
+
 	print(benchmark_server + " "+benchmark_conf + " 1 >> " + report+" 2 >> "+report)
         os.system(benchmark_server + " "
                                           + benchmark_conf
