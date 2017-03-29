@@ -1,5 +1,6 @@
 #!/bin/bash
-workspace=/home/hkucs/my_ubuntu/benchmark/workspace/
+#workspace=/home/hkucs/my_ubuntu/benchmark/workspace/
+workspace=/home/hkucs/my_ubuntu/benchmark/ye_benchmark/cfgs/workspace/
 cfgs=`ls *.cfg`
 if [ $# -eq 1 ];then
     for cfg in $cfgs;do

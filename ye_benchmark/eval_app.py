@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# python2.7.x
-
-
 import ConfigParser
 import argparse
 import logging
@@ -67,30 +62,34 @@ def ssh_remote_subprocess(recv_command, server_user, server_ip, seconds=1):
 def ssh_remote_execute(recv_command, server_user, server_ip, seconds=1):
     os.system("ssh " + server_user + "@" + server_ip + " nohup echo "+recv_command+" >1 &")
     if "mg-server" in recv_command:
-	command = "ssh " + server_user + "@" + server_ip + " \" cd /home/cheng/mongoose/"+ ";nohup ./mg-server -p 7003 &> out\""
+        command = "ssh " + server_user + "@" + server_ip + " \" cd /home/cheng/mongoose/"+ ";nohup ./mg-server -p 7003 &> out\""
         subprocess.Popen(command,shell=True)
-	time.sleep(3)
-	print(command)
+        time.sleep(3)
+        print(command)
     else:
         os.system("ssh " + server_user + "@" + server_ip + " nohup " + recv_command+"& " )
     time.sleep(seconds)
+
+
 def ssh_kill(kill_command,server_user,server_ip):
     print(kill_command)
     os.system("ssh "+ server_user +"@"+server_ip +" "+ kill_command)
     time.sleep(1)
     os.system("exit")
+
+
 def is_app_running(command):
     assert len(command) > 0
     return True if os.system(command) == 0 else False
 
 
 def execute_benchmark():
-	SERVERPATH = getConfigSections(local_config,"SERVER")['server_path']
-	BENCHMARKPATH = getConfigSections(local_config,"BENCHMARK")['benchmark_path']
+        SERVERPATH = getConfigSections(local_config,"SERVER")['server_path']
+        BENCHMARKPATH = getConfigSections(local_config,"BENCHMARK")['benchmark_path']
 
         PORT = getConfigSections(local_config, "SERVER")['port']
         SERVER_IP = getConfigSections(local_config, "SERVER")['server_ip']
-	SERVER_USER = getConfigSections(local_config,"SERVER")['server_user']
+        SERVER_USER = getConfigSections(local_config,"SERVER")['server_user']
         SERVER_PROGRAM = getConfigSections(local_config, "SERVER")['server_program']
         SERVER_CONF = getConfigSections(local_config, "SERVER")['server_conf']
         SERVER_KILL = getConfigSections(local_config, "SERVER")['server_kill']
@@ -101,32 +100,38 @@ def execute_benchmark():
         REPORT_FILE = getConfigSections(local_config, "BENCHMARK")['report_file']
 
         get_rid_of_M = "sed -i "+"\"s/\\r/\\n/g\" "
-	insert_command = "sed -i "+"\" 1 i command:   "+BENCHMARK_PROGRAM + " "+BENCHMARK_CONF+"\" "
-	insert_server = "sed -i "+"\" 1 i server: "+SERVER_PROGRAM+"\" "
+        insert_command = "sed -i "+"\" 1 i command:   "+BENCHMARK_PROGRAM + " "+BENCHMARK_CONF+"\" "
+        insert_server = "sed -i "+"\" 1 i server: "+SERVER_PROGRAM+"\" "
 
-	SERVER_PROGRAM = SERVERPATH + SERVER_PROGRAM
+        report_file_name=SERVER_PROGRAM.split(' ')[-1]
+        SERVER_PROGRAM = SERVERPATH + SERVER_PROGRAM
 
-	BENCHMARK_PROGRAM = BENCHMARKPATH + BENCHMARK_PROGRAM
-	LATEST_LINK= REPORT_FILE
-	REPORT_FILE = REPORT_FILE + '_' + getTimeStamp()+"_"+str(config_file).split('/')[-1]
+        BENCHMARK_PROGRAM = BENCHMARKPATH + BENCHMARK_PROGRAM
+        LATEST_LINK= REPORT_FILE
+        REPORT_FILE = REPORT_FILE + '_' + getTimeStamp()+"_"+str(config_file).split('/')[-1]
         ssh_kill(SERVER_KILL,SERVER_USER,SERVER_IP)
         run_server(VALIDATE_APP_STATUS,SERVER_IP,SERVER_USER, SERVER_KILL, SERVER_PROGRAM, SERVER_CONF)
         time.sleep(25)
         run_benchmark(REPORT_FILE, BENCHMARK_PROGRAM, BENCHMARK_CONF, VALIDATE_BENCHMARK_STATUS)
+        comm = "cp /home/hkucs/qemu_output/latest_master_log "+REPORT_FILE.split('.')[0]+"_master.log"
+	print(comm)
+        os.system(comm)
+        comm = "cp /home/hkucs/qemu_output/latest_slave_log "+REPORT_FILE.split('.')[0]+"_slave.log"
+        os.system(comm)
         time.sleep(15)
-	get_rid_of_M = get_rid_of_M + REPORT_FILE
-	insert_server = insert_server + REPORT_FILE
-	insert_command = insert_command + REPORT_FILE
-	print("report: "+REPORT_FILE+" link: "+LATEST_LINK)
-	latest_link = "ln -s " + REPORT_FILE+" "+LATEST_LINK
-	rm_link = "rm -f "+ LATEST_LINK
+        get_rid_of_M = get_rid_of_M + REPORT_FILE
+        insert_server = insert_server + REPORT_FILE
+        insert_command = insert_command + REPORT_FILE
+        print("report: "+REPORT_FILE+" link: "+LATEST_LINK)
+        latest_link = "ln -s " + REPORT_FILE+" "+LATEST_LINK
+        rm_link = "rm -f "+ LATEST_LINK
        # kill_all_process(SERVER_PROGRAM)
         ssh_kill(SERVER_KILL,SERVER_USER,SERVER_IP)
         os.system(get_rid_of_M)
-	os.system(insert_command)
-	os.system(insert_server)
-	os.system(rm_link)
-	os.system(latest_link)
+        os.system(insert_command)
+        os.system(insert_server)
+        os.system(rm_link)
+        os.system(latest_link)
 def run_server(status,server_ip, server_user,server_kill, server_program, server_conf, *args):
     # 3. ensure the previous app server is down
     try:
@@ -147,20 +152,32 @@ def run_server(status,server_ip, server_user,server_kill, server_program, server
 
 def run_benchmark(report, benchmark_server, benchmark_conf, command, *args):
     try:
-	sudo cat /dev/null > /home/hkucs/qemu_output/latest_master_log 
-	if "sysbench" in benchmark_server:
-            prepare = benchmark_conf+"cleanup"
+        os.system("cat /dev/null > /home/hkucs/qemu_output/latest_master_log")
+        os.system("cat /dev/null > /home/hkucs/qemu_output/latest_slave_log")
+        if "sysbench" in benchmark_server:
+            if "--pgsql-db=postgres" in benchmark_conf:
+		benchmark_server ="LD_LIBRARY_PATH=\"/home/hkucs/my_ubuntu/benchmark/postgresql/install/lib/\" " + benchmark_server
+		print(benchmark_server)
+            prepare = benchmark_conf+" cleanup"
             os.system(benchmark_server+" "+prepare)
             time.sleep(5)
-            prepare = benchmark_conf+"prepare"
+            prepare = benchmark_conf+" prepare"
             os.system(benchmark_server+" "+prepare)
             time.sleep(30)
             benchmark_conf = benchmark_conf+" run"
+        if "ycsb" in benchmark_server:
+            prepare = "load "+benchmark_conf
+            os.system(benchmark_server+" "+prepare)
+            time.sleep(30)
+            benchmark_conf = "run "+benchmark_conf
 
-	print(benchmark_server + " "+benchmark_conf + " 1 >> " + report+" 2 >> "+report)
+        print("####################################################")
+        print(benchmark_server + " "+benchmark_conf + " 1 >> " + report+" 2 >> "+report)
         os.system(benchmark_server + " "
                                           + benchmark_conf
-                                          + " >> " + report ) 
+                                          + " >> " + report )
+        print("####################################################")
+
     except IOError as benchmark_error:
     #    if benchmark_proc.pid:
     #        os.kill(benchmark_proc.pid, signal.SIGINT)
@@ -173,7 +190,7 @@ def kill_process(identifier):
         os.system("sudo kill -9 " + pid)
 
 def kill_all_process(id):
-	os.system("sudo killall -9 "+id)
+        os.system("sudo killall -9 "+id)
 
 def house_keeping(command, identifier):
     try:
