@@ -72,6 +72,8 @@ cd /home/hkucs/my_ubuntu/benchmark/ye_benchmark/cfgs/origin/
 
 ./generate_cfg.sh 10.22.1.15 cheng /home/cheng/
 
+cd /home/hkucs/my_ubuntu/benchmark/ye_benchmark
+
 python eval_app.py -f /home/cheng/my_ubuntu/benchmark/workspace/redis.cfg
 
 ### Collect data
