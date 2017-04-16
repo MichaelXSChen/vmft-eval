@@ -1,0 +1,15 @@
+[SERVER]
+PORT=27717
+SERVER_IP=10.22.1.15
+SERVER_USER=cheng
+SERVER_PROGRAM=mongod
+SERVER_CONF=--fork --port=27717 --dbpath=/home/cheng/mongodb/install/data --pidfilepath=/home/cheng/mongodb/install/mongod.pid --quiet --logpath=/home/cheng/mongodb/install/mongodb.log
+SERVER_KILL=sudo killall -9 mongod
+SERVER_PATH=/home/cheng/mongodb/install/bin/
+VALIDATE_APP_STATUS=ps -ef | grep mongod | grep -v grep
+[BENCHMARK]
+BENCHMARK_PATH=/home/hkucs/my_ubuntu/benchmark/ycsb-0.1.4/bin/
+BENCHMARK_PROGRAM=ycsb
+BENCHMARK_CONF=mongodb -s -p mongodb.url=10.22.1.15:27717 -p mongodb.writeConcern=normal -p mongodb.database=records -P /home/hkucs/my_ubuntu/benchmark/ycsb-0.1.4/workloads/workloadb -threads 16
+VALIDATE_BENCHMARK_STATUS=ps -ef | grep ycsb| grep -v grep
+REPORT_FILE=report/mongodb.rpt

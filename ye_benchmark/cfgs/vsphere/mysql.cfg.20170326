@@ -1,0 +1,15 @@
+[SERVER]
+PORT=3306
+SERVER_USER=hkucs
+SERVER_IP=10.22.1.77
+SERVER_PROGRAM=mysqld
+SERVER_CONF=--basedir=/usr --datadir=/var/lib/mysql --log-error=/var/lib/mysql/hkucs.err --pid-file=/var/run/mysqld/mysqld.pid --socket=/var/run/mysqld/mysqld.sock --port=3306
+SERVER_KILL=sudo killall -9 mysqld
+SERVER_PATH=/usr/sbin/
+VALIDATE_APP_STATUS=ps -ef | grep mysqld | grep -v grep
+[BENCHMARK]
+BENCHMARK_PATH=
+BENCHMARK_PROGRAM=sysbench
+BENCHMARK_CONF=--mysql-host=10.22.1.77 --mysql-user=root --mysql-password=abcd1234 --mysql-port=3306 --num-threads=1 --test=oltp --oltp-table-size=2000000 --oltp-table-name=sbtest --mysql-db=sysbench_db --oltp-test-mode=complex --oltp-skip-trx=on --mysql-table-engine=InnoDB --oltp-index-updates=1 --max-requests=100000
+VALIDATE_BENCHMARK_STATUS=ps -ef | grep sysbench| grep -v grep
+REPORT_FILE=/home/hkucs/my_ubuntu/benchmark/report/en_vs_fault/mysql.rpt

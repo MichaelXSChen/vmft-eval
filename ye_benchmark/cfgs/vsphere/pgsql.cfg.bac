@@ -1,0 +1,16 @@
+[SERVER]
+PORT=7000
+SERVER_USER=hkucs
+SERVER_IP=10.22.1.77
+SERVER_PROGRAM=bin/pg_ctl
+SERVER_CONF=start -D /home/hkucs/pgsql/install/data
+SERVER_KILL=sudo killall -9 pg_ctl
+SERVER_PATH=/home/hkucs/pgsql/install/
+VALIDATE_APP_STATUS=ps -ef | grep pg_ctl | grep -v grep
+[BENCHMARK]
+BENCHMARK_PATH=/home/hkucs/my_ubuntu/benchmark/postgresql/install/
+BENCHMARK_PROGRAM=bin/pgbench
+BENCHMARK_CONF=-U root dbtest -h 10.22.1.77 -p 7000 -j 16 -c 16 -t 20
+VALIDATE_BENCHMARK_STATUS=ps -ef | grep pgbench| grep -v grep
+REPORT_FILE=/home/hkucs/my_ubuntu/benchmark/report/pgsql.rpt
+
